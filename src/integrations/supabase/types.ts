@@ -103,6 +103,35 @@ export type Database = {
         }
         Relationships: []
       }
+      event_comments: {
+        Row: {
+          id: string
+          event_id: string
+          author_name: string
+          author_email: string
+          content: string
+          created_at: string
+          is_approved: boolean
+        }
+        Insert: {
+          event_id: string
+          author_name: string
+          author_email: string
+          content: string
+          created_at?: string
+          is_approved?: boolean
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          author_name?: string
+          author_email?: string
+          content?: string
+          created_at?: string
+          is_approved?: boolean
+        }
+        Relationships: []
+      }
       gallery_photos: {
         Row: {
           created_at: string
@@ -166,6 +195,87 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          id: string
+          name: string
+          role: string
+          bio: string
+          email: string | null
+          photo_url: string | null
+          linkedin_url: string | null
+          twitter_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          role: string
+          bio: string
+          email?: string | null
+          photo_url?: string | null
+          linkedin_url?: string | null
+          twitter_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          role?: string
+          bio?: string
+          email?: string | null
+          photo_url?: string | null
+          linkedin_url?: string | null
+          twitter_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      articles: {
+        Row: {
+          id: string
+          title: string
+          slug: string
+          excerpt: string
+          content: string
+          author: string
+          category: string
+          image_url: string | null
+          published: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          slug: string
+          excerpt: string
+          content: string
+          author: string
+          category?: string
+          image_url?: string | null
+          published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          slug?: string
+          excerpt?: string
+          content?: string
+          author?: string
+          category?: string
+          image_url?: string | null
+          published?: boolean
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }

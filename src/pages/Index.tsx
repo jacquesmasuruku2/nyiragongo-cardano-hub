@@ -4,8 +4,15 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import heroBanner from "@/assets/hero-banner.jpg";
+import eventHackathon from "@/assets/event-hackathon.jpg";
+import eventMasterclass from "@/assets/event-masterclass.jpg";
+import teamBaudouin from "@/assets/team-baudouin.jpg";
+import { useState, useEffect } from "react";
 
 const Index = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imageOpacity, setImageOpacity] = useState(0.8);
+
   const { data: events } = useQuery({
     queryKey: ["events-stats"],
     queryFn: async () => {
@@ -15,37 +22,89 @@ const Index = () => {
     },
   });
 
+  // Images et contenus associés pour le hero
+  const heroContent = [
+    {
+      image: heroBanner,
+      badge: "Communauté Blockchain à Nyiragongo",
+      title: "Connecter Nyiragongo au futur du Web3 avec Cardano",
+      description: "Le Cardano Nyiragongo Hub est un espace communautaire dédié à l'apprentissage, à l'innovation et à la collaboration autour de la blockchain Cardano."
+    },
+    {
+      image: eventHackathon,
+      badge: "Innovation Technologique",
+      title: "Transformez vos idées en prototypes sur Cardano",
+      description: "Participez à nos hackathons pour développer des solutions innovantes et contribuer à l'écosystème blockchain africain."
+    },
+    {
+      image: eventMasterclass,
+      badge: "Formation Expertise",
+      title: "Maîtrisez le développement Smart Contracts",
+      description: "Apprenez à créer des contrats intelligents sécurisés avec Plutus et Aiken lors de nos masterclasses techniques."
+    },
+    {
+      image: teamBaudouin,
+      badge: "Leadership Communautaire",
+      title: "Rejoignez une communauté passionnée",
+      description: "Connectez-vous avec des experts, développeurs et entrepreneurs qui partagent votre vision pour le Web3 en Afrique."
+    }
+  ];
+
+  // Changer d'image dynamiquement toutes les 5 secondes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroContent.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Animation d'opacité entre les images
+  useEffect(() => {
+    setImageOpacity(0.8); // 80% d'opacité pour un bon équilibre
+  }, [currentImageIndex]);
+
   const totalEvents = events?.length ?? 0;
   const totalBeneficiaries = 150;
+  const currentContent = heroContent[currentImageIndex];
 
   return (
     <div>
       {/* Hero */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroBanner} alt="Cardano Nyiragongo Hub community" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
-          <div className="absolute inset-0" style={{ background: "var(--gradient-overlay)" }} />
+          {/* Image dynamique avec opacité de 80% */}
+          <img 
+            src={currentContent.image} 
+            alt="Cardano Nyiragongo Hub community" 
+            className="w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
+            style={{ opacity: imageOpacity }}
+          />
+          {/* Réduire les overlays pour plus de visibilité */}
+          <div className="absolute inset-0 bg-background/30 backdrop-blur-none" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%)" }} />
         </div>
 
         <div className="container relative mx-auto px-4 py-20">
           <div className="max-w-3xl animate-fade-up">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm text-primary mb-6">
               <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-              Communauté Blockchain à Nyiragongo
+              {currentContent.badge}
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              Connecter Nyiragongo au futur du{" "}
-              <span className="text-gradient">Web3 avec Cardano</span>
+              {currentContent.title.split(' ').map((word, index) => 
+                word === 'Web3' || word === 'Cardano' || word === 'prototypes' || word === 'Smart' || word === 'Contracts' || word === 'communauté' 
+                  ? <span key={index} className="text-gradient">{word} </span> 
+                  : word + ' '
+              )}
             </h1>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl leading-relaxed">
-              Le Cardano Nyiragongo Hub est un espace communautaire dédié à l'apprentissage, 
-              à l'innovation et à la collaboration autour de la blockchain Cardano.
+              {currentContent.description}
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button asChild size="lg" className="bg-gradient-hero border-0 hover:opacity-90 transition-opacity">
-                <Link to="/newsletter">
-                  S'inscrire à la newsletter
+              <Button asChild size="lg" className="btn-primary">
+                <Link to="/articles">
+                  Lire nos blogs
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -124,7 +183,7 @@ const Index = () => {
             Participez à la construction du Web3 en Afrique. Que vous soyez développeur, étudiant ou entrepreneur, il y a une place pour vous.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button asChild size="lg" className="bg-gradient-hero border-0 hover:opacity-90">
+            <Button asChild size="lg" className="btn-primary">
               <Link to="/contact">Nous rejoindre</Link>
             </Button>
             <Button asChild variant="outline" size="lg">

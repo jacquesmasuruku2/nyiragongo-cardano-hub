@@ -125,6 +125,18 @@
     background-image: var(--gradient-hero);
   }
 
+  .btn-primary {
+    background-color: hsl(216, 85%, 55%);
+    border: none;
+    color: white;
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: hsl(216, 85%, 45%);
+    transform: translateY(-1px);
+  }
+
   .shadow-glow {
     box-shadow: var(--shadow-glow);
   }

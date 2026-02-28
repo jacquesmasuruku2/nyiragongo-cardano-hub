@@ -1,69 +1,73 @@
-# 🚀 Cardano Nyiragongo Hub
+# Welcome to your Lovable project
 
-**Par Masu Data Business - Jacques MASURUKU**
+## Project info
 
-Le Cardano Nyiragongo Hub est une plateforme communautaire dédiée à l'apprentissage, l'innovation et la collaboration autour de la blockchain Cardano à Nyiragongo, RDC.
+**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 
-## 🎯 Mission
+## How can I edit this code?
 
-Connecter Nyiragongo au futur du Web3 avec Cardano en offrant :
-- Formation et éducation blockchain
-- Événements communautaires
-- Incubation de projets locaux
-- Collaboration internationale
+There are several ways of editing your application.
 
-## 🛠 Technologies
+**Use Lovable**
 
-- **Frontend** : React 18 + TypeScript + Vite
-- **Backend** : Supabase (PostgreSQL + Auth + Storage)
-- **Styling** : Tailwind CSS + shadcn/ui
-- **State Management** : React Query
-- **Routing** : React Router v7
+Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
 
-## 📦 Installation
+Changes made via Lovable will be committed automatically to this repo.
 
-```bash
-# Cloner le repository
-git clone https://github.com/jacquesmasuruku2/nyiragongo-cardano-hub.git
-cd nyiragongo-cardano-hub
+**Use your preferred IDE**
 
-# Installer les dépendances
-npm install
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-# Configurer les variables d'environnement
-cp .env.example .env
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-# Démarrer le serveur de développement
+Follow these steps:
+
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
+
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
+
+# Step 3: Install the necessary dependencies.
+npm i
+
+# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-## 🔧 Configuration Supabase
+**Edit a file directly in GitHub**
 
-Exécutez les scripts SQL dans l'ordre :
-1. `supabase/migrations/20260226065258_6e9f38f0-6606-4a74-82d5-a6638b6536b8.sql`
-2. `supabase/migrations/20260227195124_5498e779-4e69-4186-86bb-b66cdd168b16.sql`
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-## 🌐 Déploiement
+**Use GitHub Codespaces**
 
-### Vercel
-1. Connectez votre repository GitHub
-2. Configurez les variables d'environnement
-3. Déployez automatiquement
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-### Variables d'environnement
-```
-VITE_SUPABASE_PROJECT_ID=aqsmxilxhvdasoxirgae
-VITE_SUPABASE_PUBLISHABLE_KEY=[votre_clé]
-VITE_SUPABASE_URL=https://aqsmxilxhvdasoxirgae.supabase.co
-```
+## What technologies are used for this project?
 
-## 👤 Auteur
+This project is built with:
 
-**Jacques MASURUKU**  
-Fondateur - Masu Data Business  
-📧 masudatabusiness@gmail.com  
-🔗 [LinkedIn](https://cd.linkedin.com/in/jacques-mapenzi-masuruku-73266b245)
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
-## 📄 Licence
+## How can I deploy this project?
 
-© 2026 Masu Data Business. Tous droits réservés.
+Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+
+## Can I connect a custom domain to my Lovable project?
+
+Yes, you can!
+
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)

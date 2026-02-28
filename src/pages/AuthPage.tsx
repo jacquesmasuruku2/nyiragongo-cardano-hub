@@ -72,9 +72,7 @@ const AuthPage = () => {
     <div className="min-h-[70vh] flex items-center justify-center">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-card">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 rounded-lg bg-gradient-hero flex items-center justify-center">
-            <LogIn className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <img src="/logo.png" alt="Cardano Nyiragongo" className="h-10 w-auto" />
           <div>
             <h1 className="text-xl font-bold">Panel Admin</h1>
             <p className="text-xs text-muted-foreground">Connexion réservée aux administrateurs</p>
@@ -89,7 +87,7 @@ const AuthPage = () => {
             <label className="block text-sm font-medium mb-2">Mot de passe</label>
             <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
           </div>
-          <Button type="submit" className="w-full bg-gradient-hero border-0 hover:opacity-90" disabled={loading}>
+          <Button type="submit" className="w-full btn-primary" disabled={loading}>
             {loading ? "Connexion..." : "Se connecter"}
           </Button>
         </form>

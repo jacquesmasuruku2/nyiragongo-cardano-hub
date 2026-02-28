@@ -8,13 +8,14 @@ import Index from "./pages/Index";
 import MissionPage from "./pages/MissionPage";
 import ArticlesPage from "./pages/ArticlesPage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
-import EventsPage from "./pages/EventsPage";
+import EvenementsPage from "./pages/EvenementsPage";
 import EventDetailPage from "./pages/EventDetailPage";
-import TeamPage from "./pages/TeamPage";
+import EquipePage from "./pages/EquipePage";
 import GalleryPage from "./pages/GalleryPage";
 import NewsletterPage from "./pages/NewsletterPage";
 import ContactPage from "./pages/ContactPage";
 import FaqPage from "./pages/FaqPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import AuthPage from "./pages/AuthPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
@@ -33,13 +34,14 @@ const App = () => (
             <Route path="/mission" element={<MissionPage />} />
             <Route path="/articles" element={<ArticlesPage />} />
             <Route path="/articles/:id" element={<ArticleDetailPage />} />
-            <Route path="/evenements" element={<EventsPage />} />
+            <Route path="/evenements" element={<EvenementsPage />} />
             <Route path="/evenements/:slug" element={<EventDetailPage />} />
-            <Route path="/equipe" element={<TeamPage />} />
+            <Route path="/equipe" element={<EquipePage />} />
             <Route path="/galerie" element={<GalleryPage />} />
             <Route path="/newsletter" element={<NewsletterPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/faq" element={<FaqPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFound />} />

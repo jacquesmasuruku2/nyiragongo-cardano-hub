@@ -61,7 +61,7 @@ const NewsletterPage = () => {
                 <option>Articles</option>
               </select>
             </div>
-            <Button type="submit" className="w-full bg-gradient-hero border-0 hover:opacity-90">
+            <Button type="submit" className="w-full btn-primary">
               S'inscrire
             </Button>
           </form>

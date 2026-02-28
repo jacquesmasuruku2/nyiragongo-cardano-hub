@@ -50,7 +50,7 @@ const ContactPage = () => {
                 <label className="block text-sm font-medium mb-2">Message</label>
                 <Textarea value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Votre message..." rows={5} required />
               </div>
-              <Button type="submit" className="w-full bg-gradient-hero border-0 hover:opacity-90">
+              <Button type="submit" className="w-full btn-primary">
                 Envoyer
               </Button>
             </form>

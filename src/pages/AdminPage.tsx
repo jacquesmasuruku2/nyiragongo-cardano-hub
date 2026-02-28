@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Trash2, Image as ImageIcon, Calendar, Upload } from "lucide-react";
+import { LogOut, Plus, Trash2, Image as ImageIcon, Calendar, Upload, Users, FileText } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AdminPage = () => {
@@ -54,10 +54,14 @@ const AdminPage = () => {
       <Tabs defaultValue="events">
         <TabsList className="mb-6">
           <TabsTrigger value="events"><Calendar className="h-4 w-4 mr-2" /> Événements</TabsTrigger>
+          <TabsTrigger value="team"><Users className="h-4 w-4 mr-2" /> Équipe</TabsTrigger>
+          <TabsTrigger value="blog"><FileText className="h-4 w-4 mr-2" /> Blog</TabsTrigger>
           <TabsTrigger value="gallery"><ImageIcon className="h-4 w-4 mr-2" /> Galerie</TabsTrigger>
         </TabsList>
 
         <TabsContent value="events"><EventsManager /></TabsContent>
+        <TabsContent value="team"><TeamManager /></TabsContent>
+        <TabsContent value="blog"><BlogManager /></TabsContent>
         <TabsContent value="gallery"><GalleryManager /></TabsContent>
       </Tabs>
     </div>
@@ -195,6 +199,259 @@ const EventsManager = () => {
                 {event.is_upcoming ? "À venir" : "Passé"}
               </span>
               <Button variant="ghost" size="icon" onClick={() => { if (confirm("Supprimer ?")) deleteEvent.mutate(event.id); }}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ========== Team Manager ========== */
+const TeamManager = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    name: "", role: "", bio: "", email: "", photo_url: "", linkedin_url: "", twitter_url: ""
+  });
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+
+  const { data: teamMembers, isLoading } = useQuery({
+    queryKey: ["admin-team"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("team_members").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const createTeamMember = useMutation({
+    mutationFn: async () => {
+      let photo_url: string | null = null;
+      if (photoFile) {
+        const ext = photoFile.name.split(".").pop();
+        const path = `team-${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("team-photos").upload(path, photoFile);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage.from("team-photos").getPublicUrl(path);
+        photo_url = urlData.publicUrl;
+      }
+
+      const { error } = await supabase.from("team_members").insert({
+        name: form.name,
+        role: form.role,
+        bio: form.bio,
+        email: form.email || null,
+        photo_url: photo_url || form.photo_url,
+        linkedin_url: form.linkedin_url || null,
+        twitter_url: form.twitter_url || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: "Membre de l'équipe ajouté !" });
+      setOpen(false);
+      setForm({ name: "", role: "", bio: "", email: "", photo_url: "", linkedin_url: "", twitter_url: "" });
+      setPhotoFile(null);
+      queryClient.invalidateQueries({ queryKey: ["admin-team"] });
+      queryClient.invalidateQueries({ queryKey: ["team_members"] });
+    },
+    onError: (err: any) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
+  });
+
+  const deleteTeamMember = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("team_members").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: "Membre supprimé" });
+      queryClient.invalidateQueries({ queryKey: ["admin-team"] });
+      queryClient.invalidateQueries({ queryKey: ["team_members"] });
+    },
+  });
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Gérer l'équipe</h2>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button><Plus className="h-4 w-4 mr-2" /> Nouveau membre</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>Ajouter un membre</DialogTitle></DialogHeader>
+            <form onSubmit={(e) => { e.preventDefault(); createTeamMember.mutate(); }} className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Input placeholder="Nom complet" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+                <Input placeholder="Rôle" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} required />
+              </div>
+              <Textarea placeholder="Biographie" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={4} required />
+              <Input placeholder="Email (optionnel)" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <Input placeholder="URL photo (optionnel)" value={form.photo_url} onChange={(e) => setForm({ ...form, photo_url: e.target.value })} />
+              <div>
+                <label className="text-sm font-medium mb-1 block">OU télécharger une photo</label>
+                <Input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] || null)} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Input placeholder="LinkedIn (optionnel)" value={form.linkedin_url} onChange={(e) => setForm({ ...form, linkedin_url: e.target.value })} />
+                <Input placeholder="Twitter (optionnel)" value={form.twitter_url} onChange={(e) => setForm({ ...form, twitter_url: e.target.value })} />
+              </div>
+              <Button type="submit" className="w-full" disabled={createTeamMember.isPending}>
+                {createTeamMember.isPending ? "Ajout..." : "Ajouter le membre"}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-4">{[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-xl bg-card animate-pulse" />)}</div>
+      ) : (
+        <div className="space-y-3">
+          {teamMembers?.map((member) => (
+            <div key={member.id} className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+              {member.photo_url && <img src={member.photo_url} alt="" className="h-14 w-14 rounded-full object-cover shrink-0" />}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold">{member.name}</h3>
+                <p className="text-sm text-muted-foreground">{member.role}</p>
+                <p className="text-xs text-muted-foreground truncate">{member.bio}</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => { if (confirm("Supprimer ce membre ?")) deleteTeamMember.mutate(member.id); }}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ========== Blog Manager ========== */
+const BlogManager = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    title: "", slug: "", excerpt: "", content: "", author: "", category: "general", image_url: ""
+  });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const { data: articles, isLoading } = useQuery({
+    queryKey: ["admin-blog"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("articles").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const createArticle = useMutation({
+    mutationFn: async () => {
+      let image_url: string | null = null;
+      if (imageFile) {
+        const ext = imageFile.name.split(".").pop();
+        const path = `blog-${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("blog-images").upload(path, imageFile);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage.from("blog-images").getPublicUrl(path);
+        image_url = urlData.publicUrl;
+      }
+
+      const { error } = await supabase.from("articles").insert({
+        title: form.title,
+        slug: form.slug || form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+        excerpt: form.excerpt,
+        content: form.content,
+        author: form.author,
+        category: form.category,
+        image_url: image_url || form.image_url,
+        published: true,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: "Article publié !" });
+      setOpen(false);
+      setForm({ title: "", slug: "", excerpt: "", content: "", author: "", category: "general", image_url: "" });
+      setImageFile(null);
+      queryClient.invalidateQueries({ queryKey: ["admin-blog"] });
+      queryClient.invalidateQueries({ queryKey: ["articles"] });
+    },
+    onError: (err: any) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
+  });
+
+  const deleteArticle = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("articles").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: "Article supprimé" });
+      queryClient.invalidateQueries({ queryKey: ["admin-blog"] });
+      queryClient.invalidateQueries({ queryKey: ["articles"] });
+    },
+  });
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Gérer le blog</h2>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button><Plus className="h-4 w-4 mr-2" /> Nouvel article</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>Publier un article</DialogTitle></DialogHeader>
+            <form onSubmit={(e) => { e.preventDefault(); createArticle.mutate(); }} className="space-y-4 mt-4">
+              <Input placeholder="Titre de l'article" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+              <Input placeholder="Slug (auto-généré si vide)" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
+              <div className="grid grid-cols-2 gap-4">
+                <Input placeholder="Auteur" value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} required />
+                <select 
+                  value={form.category} 
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="general">Général</option>
+                  <option value="blockchain">Blockchain</option>
+                  <option value="cardano">Cardano</option>
+                  <option value="education">Éducation</option>
+                  <option value="events">Événements</option>
+                </select>
+              </div>
+              <Textarea placeholder="Extrait (résumé de l'article)" value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} rows={3} required />
+              <Textarea placeholder="Contenu complet de l'article" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={10} required />
+              <Input placeholder="URL image (optionnel)" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
+              <div>
+                <label className="text-sm font-medium mb-1 block">OU télécharger une image</label>
+                <Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
+              </div>
+              <Button type="submit" className="w-full" disabled={createArticle.isPending}>
+                {createArticle.isPending ? "Publication..." : "Publier l'article"}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-4">{[1, 2, 3].map((i) => <div key={i} className="h-32 rounded-xl bg-card animate-pulse" />)}</div>
+      ) : (
+        <div className="space-y-3">
+          {articles?.map((article) => (
+            <div key={article.id} className="flex items-start gap-4 rounded-xl border border-border bg-card p-4">
+              {article.image_url && <img src={article.image_url} alt="" className="h-20 w-20 rounded-lg object-cover shrink-0" />}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold">{article.title}</h3>
+                <p className="text-sm text-muted-foreground mb-1">{article.excerpt}</p>
+                <p className="text-xs text-muted-foreground">{article.author} • {article.category} • {new Date(article.created_at).toLocaleDateString()}</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => { if (confirm("Supprimer cet article ?")) deleteArticle.mutate(article.id); }}>
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </div>

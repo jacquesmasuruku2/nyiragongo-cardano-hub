@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Calendar, MapPin, Users, User, Clock, Share2 } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Users, User, Clock, Share2, MessageCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { differenceInDays, format } from "date-fns";
@@ -20,6 +21,17 @@ const fetchEvent = async (slug: string) => {
   return data;
 };
 
+const fetchEventComments = async (eventId: string) => {
+  const { data, error } = await supabase
+    .from("event_comments")
+    .select("*")
+    .eq("event_id", eventId)
+    .eq("is_approved", true)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+};
+
 const EventDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
@@ -27,11 +39,20 @@ const EventDetailPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [commentName, setCommentName] = useState("");
+  const [commentEmail, setCommentEmail] = useState("");
+  const [commentContent, setCommentContent] = useState("");
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", slug],
     queryFn: () => fetchEvent(slug!),
     enabled: !!slug,
+  });
+
+  const { data: comments, isLoading: commentsLoading } = useQuery({
+    queryKey: ["event-comments", event?.id],
+    queryFn: () => fetchEventComments(event!.id),
+    enabled: !!event?.id,
   });
 
   const reserveMutation = useMutation({
@@ -53,6 +74,28 @@ const EventDetailPage = () => {
     },
     onError: () => {
       toast({ title: "Erreur", description: "Impossible de réserver. Réessayez.", variant: "destructive" });
+    },
+  });
+
+  const commentMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("event_comments").insert({
+        event_id: event!.id,
+        author_name: commentName,
+        author_email: commentEmail,
+        content: commentContent,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: "Commentaire publié !", description: "Votre commentaire a été ajouté avec succès." });
+      setCommentName("");
+      setCommentEmail("");
+      setCommentContent("");
+      queryClient.invalidateQueries({ queryKey: ["event-comments", event?.id] });
+    },
+    onError: () => {
+      toast({ title: "Erreur", description: "Impossible de publier le commentaire. Réessayez.", variant: "destructive" });
     },
   });
 
@@ -188,7 +231,7 @@ const EventDetailPage = () => {
           )}
 
           {/* Share */}
-          <div className="rounded-xl border border-border bg-card p-6">
+          <div className="rounded-xl border border-border bg-card p-6 mb-8">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Share2 className="h-5 w-5" /> Partager cet événement
             </h3>
@@ -205,6 +248,92 @@ const EventDetailPage = () => {
                 </a>
               ))}
             </div>
+          </div>
+
+          {/* Comments Section */}
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" /> Commentaires ({comments?.length || 0})
+            </h3>
+
+            {/* Comment Form */}
+            <div className="mb-8 p-4 border border-border rounded-lg bg-muted/30">
+              <h4 className="font-medium mb-4">Laisser un commentaire</h4>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  commentMutation.mutate();
+                }}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    placeholder="Votre nom"
+                    value={commentName}
+                    onChange={(e) => setCommentName(e.target.value)}
+                    required
+                  />
+                  <Input
+                    type="email"
+                    placeholder="Votre email"
+                    value={commentEmail}
+                    onChange={(e) => setCommentEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <Textarea
+                  placeholder="Votre commentaire..."
+                  value={commentContent}
+                  onChange={(e) => setCommentContent(e.target.value)}
+                  rows={4}
+                  required
+                />
+                <Button type="submit" className="w-full sm:w-auto" disabled={commentMutation.isPending}>
+                  {commentMutation.isPending ? "Publication..." : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Publier le commentaire
+                    </>
+                  )}
+                </Button>
+              </form>
+            </div>
+
+            {/* Comments List */}
+            {commentsLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="p-4 border border-border rounded-lg bg-muted/30 animate-pulse">
+                    <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
+                    <div className="h-3 bg-muted rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-muted rounded w-1/2"></div>
+                  </div>
+                ))}
+              </div>
+            ) : comments && comments.length > 0 ? (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <div key={comment.id} className="p-4 border border-border rounded-lg bg-muted/30">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h4 className="font-medium text-foreground">{comment.author_name}</h4>
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(comment.created_at), "d MMMM yyyy 'à' HH:mm", { locale: fr })}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-foreground/90 leading-relaxed whitespace-pre-line">
+                      {comment.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Soyez le premier à commenter cet événement !</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
