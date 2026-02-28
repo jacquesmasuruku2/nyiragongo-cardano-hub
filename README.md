@@ -1,73 +1,69 @@
-# Welcome to your Lovable project
+# 🚀 Cardano Nyiragongo Hub
 
-## Project info
+**Par Masu Data Business - Jacques MASURUKU**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Le Cardano Nyiragongo Hub est une plateforme communautaire dédiée à l'apprentissage, l'innovation et la collaboration autour de la blockchain Cardano à Nyiragongo, RDC.
 
-## How can I edit this code?
+## 🎯 Mission
 
-There are several ways of editing your application.
+Connecter Nyiragongo au futur du Web3 avec Cardano en offrant :
+- Formation et éducation blockchain
+- Événements communautaires
+- Incubation de projets locaux
+- Collaboration internationale
 
-**Use Lovable**
+## 🛠 Technologies
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- **Frontend** : React 18 + TypeScript + Vite
+- **Backend** : Supabase (PostgreSQL + Auth + Storage)
+- **Styling** : Tailwind CSS + shadcn/ui
+- **State Management** : React Query
+- **Routing** : React Router v7
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📦 Installation
 
-**Use your preferred IDE**
+```bash
+# Cloner le repository
+git clone https://github.com/jacquesmasuruku2/nyiragongo-cardano-hub.git
+cd nyiragongo-cardano-hub
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+# Installer les dépendances
+npm install
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+# Configurer les variables d'environnement
+cp .env.example .env
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Démarrer le serveur de développement
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🔧 Configuration Supabase
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Exécutez les scripts SQL dans l'ordre :
+1. `supabase/migrations/20260226065258_6e9f38f0-6606-4a74-82d5-a6638b6536b8.sql`
+2. `supabase/migrations/20260227195124_5498e779-4e69-4186-86bb-b66cdd168b16.sql`
 
-**Use GitHub Codespaces**
+## 🌐 Déploiement
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Vercel
+1. Connectez votre repository GitHub
+2. Configurez les variables d'environnement
+3. Déployez automatiquement
 
-## What technologies are used for this project?
+### Variables d'environnement
+```
+VITE_SUPABASE_PROJECT_ID=aqsmxilxhvdasoxirgae
+VITE_SUPABASE_PUBLISHABLE_KEY=[votre_clé]
+VITE_SUPABASE_URL=https://aqsmxilxhvdasoxirgae.supabase.co
+```
 
-This project is built with:
+## 👤 Auteur
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+**Jacques MASURUKU**  
+Fondateur - Masu Data Business  
+📧 masudatabusiness@gmail.com  
+🔗 [LinkedIn](https://cd.linkedin.com/in/jacques-mapenzi-masuruku-73266b245)
 
-## How can I deploy this project?
+## 📄 Licence
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+© 2026 Masu Data Business. Tous droits réservés.
