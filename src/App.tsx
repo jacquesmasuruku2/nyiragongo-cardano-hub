@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
+import AdminLayout from "./components/AdminLayout";
 import Index from "./pages/Index";
 import MissionPage from "./pages/MissionPage";
 import ArticlesPage from "./pages/ArticlesPage";
@@ -28,25 +29,28 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/mission" element={<MissionPage />} />
-            <Route path="/articles" element={<ArticlesPage />} />
-            <Route path="/articles/:id" element={<ArticleDetailPage />} />
-            <Route path="/evenements" element={<EvenementsPage />} />
-            <Route path="/evenements/:slug" element={<EventDetailPage />} />
-            <Route path="/equipe" element={<EquipePage />} />
-            <Route path="/galerie" element={<GalleryPage />} />
-            <Route path="/newsletter" element={<NewsletterPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/faq" element={<FaqPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          {/* Routes publiques avec Layout standard */}
+          <Route path="/" element={<Layout><Index /></Layout>} />
+          <Route path="/mission" element={<Layout><MissionPage /></Layout>} />
+          <Route path="/articles" element={<Layout><ArticlesPage /></Layout>} />
+          <Route path="/articles/:id" element={<Layout><ArticleDetailPage /></Layout>} />
+          <Route path="/evenements" element={<Layout><EvenementsPage /></Layout>} />
+          <Route path="/evenements/:slug" element={<Layout><EventDetailPage /></Layout>} />
+          <Route path="/equipe" element={<Layout><EquipePage /></Layout>} />
+          <Route path="/galerie" element={<Layout><GalleryPage /></Layout>} />
+          <Route path="/newsletter" element={<Layout><NewsletterPage /></Layout>} />
+          <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
+          <Route path="/faq" element={<Layout><FaqPage /></Layout>} />
+          <Route path="/privacy" element={<Layout><PrivacyPage /></Layout>} />
+          <Route path="/auth" element={<Layout><AuthPage /></Layout>} />
+          
+          {/* Route admin avec AdminLayout (pas de navbar/footer) */}
+          <Route path="/admin" element={<AdminLayout><AdminPage /></AdminLayout>} />
+          
+          {/* 404 */}
+          <Route path="*" element={<Layout><NotFound /></Layout>} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
