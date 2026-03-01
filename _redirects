@@ -1,0 +1,22 @@
+# Redirections pour Vercel
+# Format: source destination
+
+# Pages principales
+/mission /index.html 200
+/articles /index.html 200
+/evenements /index.html 200
+/equipe /index.html 200
+/galerie /index.html 200
+/newsletter /index.html 200
+/contact /index.html 200
+/faq /index.html 200
+/privacy /index.html 200
+/auth /index.html 200
+/admin /index.html 200
+
+# Routes avec paramètres
+/articles/* /index.html 200
+/evenements/* /index.html 200
+
+# Catch-all pour les routes SPA
+/* /index.html 200
