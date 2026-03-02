@@ -23,7 +23,49 @@ const AuthPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Try to sign in first
+      // Check for hardcoded admin credentials
+      if (email === "cardanoniragongo@gmail.com" && password === "MUVUNGA.BD") {
+        // Create or sign in admin user
+        const { error: signInError } = await supabase.auth.signInWithPassword({ 
+          email: "cardanoniragongo@gmail.com", 
+          password: "MUVUNGA.BD" 
+        });
+
+        if (signInError) {
+          // If user doesn't exist, create it
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ 
+            email: "cardanoniragongo@gmail.com", 
+            password: "MUVUNGA.BD" 
+          });
+          if (signUpError) throw signUpError;
+          if (signUpData.user) {
+            // Setup admin profile and role
+            await supabase.rpc("setup_user_profile", { p_user_id: signUpData.user.id, p_email: "cardanoniragongo@gmail.com" });
+            // Ensure admin role
+            await supabase.from("user_roles").upsert({ 
+              user_id: signUpData.user.id, 
+              role: "admin" 
+            });
+            toast({ title: "Compte admin créé !", description: "Connexion au panel admin..." });
+            navigate("/admin");
+          }
+        } else {
+          // Sign in succeeded - ensure admin role
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            await supabase.rpc("setup_user_profile", { p_user_id: user.id, p_email: "cardanoniragongo@gmail.com" });
+            // Ensure admin role
+            await supabase.from("user_roles").upsert({ 
+              user_id: user.id, 
+              role: "admin" 
+            });
+            navigate("/admin");
+          }
+        }
+        return;
+      }
+
+      // Try to sign in first for other users
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
       if (signInError) {
