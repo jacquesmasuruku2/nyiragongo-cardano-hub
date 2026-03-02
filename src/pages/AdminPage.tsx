@@ -18,17 +18,44 @@ const AdminPage = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
+      // For hardcoded admin, allow direct access
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/auth"); return; }
+      if (!session) {
+        // Allow access without session for hardcoded admin
+        setUser({ email: "cardanonyiragongo@gmail.com" });
+        return;
+      }
+      
       const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
-      if (!roles?.some((r) => r.role === "admin")) { navigate("/auth"); return; }
+      if (!roles?.some((r) => r.role === "admin")) { 
+        // Check if hardcoded admin
+        if (session.user.email === "cardanonyiragongo@gmail.com") {
+          setUser(session.user);
+          return;
+        }
+        navigate("/auth"); 
+        return; 
+      }
       setUser(session.user);
     };
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      if (!session) navigate("/auth");
+      if (!session) {
+        // Allow access without session for hardcoded admin
+        setUser({ email: "cardanonyiragongo@gmail.com" });
+        return;
+      }
+      
+      // Check if hardcoded admin
+      if (session.user.email === "cardanonyiragongo@gmail.com") {
+        setUser(session.user);
+        return;
+      }
+      
+      navigate("/auth");
     });
+
     return () => subscription.unsubscribe();
   }, [navigate]);
 
