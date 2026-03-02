@@ -14,9 +14,17 @@ const AuthPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/admin");
-    });
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // Check if user has admin role
+        const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
+        if (roles?.some((r) => r.role === "admin")) {
+          navigate("/admin");
+        }
+      }
+    };
+    checkSession();
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
