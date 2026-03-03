@@ -31,8 +31,11 @@ const AuthPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Check for hardcoded admin credentials
-      if (email === "cardanonyiragongo@gmail.com" && password === "MUVUNGA.BD") {
+      // Check for hardcoded admin credentials - case insensitive and trimmed
+      const normalizedEmail = email.toLowerCase().trim();
+      const normalizedPassword = password.trim();
+      
+      if (normalizedEmail === "cardanonyiragongo@gmail.com" && normalizedPassword === "MUVUNGA.BD") {
         // Direct admin access - bypass Supabase auth for hardcoded credentials
         toast({ title: "Connexion admin !", description: "Accès au panel admin..." });
         navigate("/admin");

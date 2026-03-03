@@ -22,17 +22,18 @@ const AdminPage = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         // Allow access without session for hardcoded admin
-        setUser({ email: "cardanonyiragongo@gmail.com" });
+        setUser({ email: "cardanonyiragongo@gmail.com", id: "hardcoded-admin" });
+        return;
+      }
+      
+      // Check if hardcoded admin email
+      if (session.user.email?.toLowerCase().trim() === "cardanonyiragongo@gmail.com") {
+        setUser(session.user);
         return;
       }
       
       const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
       if (!roles?.some((r) => r.role === "admin")) { 
-        // Check if hardcoded admin
-        if (session.user.email === "cardanonyiragongo@gmail.com") {
-          setUser(session.user);
-          return;
-        }
         navigate("/auth"); 
         return; 
       }
@@ -43,12 +44,12 @@ const AdminPage = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       if (!session) {
         // Allow access without session for hardcoded admin
-        setUser({ email: "cardanonyiragongo@gmail.com" });
+        setUser({ email: "cardanonyiragongo@gmail.com", id: "hardcoded-admin" });
         return;
       }
       
-      // Check if hardcoded admin
-      if (session.user.email === "cardanonyiragongo@gmail.com") {
+      // Check if hardcoded admin email
+      if (session.user.email?.toLowerCase().trim() === "cardanonyiragongo@gmail.com") {
         setUser(session.user);
         return;
       }
