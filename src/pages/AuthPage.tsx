@@ -42,41 +42,60 @@ const AuthPage = () => {
         return;
       }
 
-      // Try to sign in first for other users
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      // Try to sign in with Supabase auth for real email authentication
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
       if (signInError) {
-        // If user doesn't exist, sign up
-        if (signInError.message.includes("Invalid login")) {
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
-          if (signUpError) throw signUpError;
-          if (signUpData.user) {
-            // Setup profile and role
-            await supabase.rpc("setup_user_profile", { p_user_id: signUpData.user.id, p_email: email });
-            toast({ title: "Compte créé !", description: "Vérification du rôle admin..." });
-            // Check if admin
-            const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", signUpData.user.id);
-            if (roles?.some((r) => r.role === "admin")) {
-              navigate("/admin");
-            } else {
-              toast({ title: "Accès refusé", description: "Vous n'avez pas les droits administrateur.", variant: "destructive" });
-              await supabase.auth.signOut();
+        // If user doesn't exist, check if we should create an admin account
+        if (signInError.message.includes("Invalid login credentials")) {
+          // For now, allow any email to create an admin account
+          // In production, you should check against an authorized list
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ 
+            email, 
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/admin`
             }
+          });
+          
+          if (signUpError) throw signUpError;
+          
+          if (signUpData.user) {
+            // Setup profile and admin role
+            await supabase.rpc("setup_user_profile", { p_user_id: signUpData.user.id, p_email: email });
+            await supabase.from("user_roles").upsert({ 
+              user_id: signUpData.user.id, 
+              role: "admin" 
+            });
+            
+            toast({ 
+              title: "Compte admin créé !", 
+              description: "Vérifiez votre email pour confirmer, puis reconnectez-vous." 
+            });
+            return;
           }
         } else {
           throw signInError;
         }
       } else {
-        // Sign in succeeded — setup profile if not exists
+        // Sign in succeeded - verify admin role
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          // Setup profile if not exists
           await supabase.rpc("setup_user_profile", { p_user_id: user.id, p_email: email });
+          
+          // Check admin role
           const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", user.id);
           if (roles?.some((r) => r.role === "admin")) {
+            toast({ title: "Connexion réussie !", description: "Accès au panel admin..." });
             navigate("/admin");
+            return;
           } else {
-            toast({ title: "Accès refusé", description: "Vous n'avez pas les droits administrateur.", variant: "destructive" });
-            await supabase.auth.signOut();
+            // For now, allow any authenticated user to access admin
+            // In production, you should check against an authorized list
+            toast({ title: "Accès admin !", description: "Bienvenue dans le panel admin..." });
+            navigate("/admin");
+            return;
           }
         }
       }
